@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registration Form</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+    
+        h2 {
+            color: #333;
+        }
+    
+        form {
+            max-width: 400px;
+            margin: 20px auto;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+        }
+    
+        input, checkbox, button {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 16px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+    
+        button {
+            background-color: #f4f5f5;
+            color: rgba(60, 155, 93, 0.64) 255, 255, 0.988);
+            cursor: pointer;
+        }
+    
+        button:hover {
+            background-color: #45a049;
+        }
+    
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin-top: 20px;
+            background-color: #fff;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+    
+        th, td {
+            border: 1px solid #dddddd;
+            text-align: left;
+            padding: 12px;
+        }
+    
+        th {
+            background-color: #f0f9f8;
+            color: #898484;
+        }
+    
+        tbody tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+    
+        
+</head>
+<body>
+
+    <h2 align="center">Registration Form</h2>
+    <form id="registrationForm">
+        <table align="center" cellspacing="2" cellpadding="20">
+        <tr><th><label for="name">Name:</label></th>
+        <td><input type="text" id="name" required></td></tr>
+
+       <tr><th><label for="email">Email:</label></th>
+        <td><input type="email" id="email" required></td></tr>
+
+        <tr><th><label for="password">Password:</label></th>
+        <td><input type="password" id="password" required></td></tr>
+
+        <tr><th><label for="dob">Date of Birth:</label></th>
+        <td><input type="date" id="dob" required></td></tr>
+
+        <tr><th><label for="terms">Accept Terms:</label></th>
+        <td><input type="checkbox" id="terms" required></td></tr>
+
+       <tr><th colspan="2"><center><button type="button" onclick="submitForm()">Submit</button></center></th></tr></table>
+    </form>
+    <table id="userTable">
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Password</th>
+                <th>DOB</th>
+                <th>Accepted Terms</th>
+            </tr>
+        </thead>
+        <tbody>
+            
+        </tbody>
+    </table>
+    <script>
+         document.addEventListener('DOMContentLoaded', function () {
+            loadEntries();
+           
+        });
+        function submitForm() {
+            
+            var name = document.getElementById("name").value;
+            var email = document.getElementById("email").value;
+            var password = document.getElementById("password").value;
+            var dob = document.getElementById("dob").value;
+            var terms = document.getElementById("terms").checked;
+
+            
+            if (!validateEmail(email)) {
+                alert("Invalid email address");
+                return;
+            }
+
+            var age = calculateAge(dob);
+            if (age < 18 || age > 55) {
+                alert("Age must be between 18 and 55");
+                return;
+            }
+
+            
+            var table = document.getElementById("userTable").getElementsByTagName('tbody')[0];
+            var row = table.insertRow(0);
+            var cell1 = row.insertCell(0);
+            var cell2 = row.insertCell(1);
+            var cell3 = row.insertCell(2);
+            var cell4 = row.insertCell(3);
+            var cell5 = row.insertCell(4);
+
+            cell1.innerHTML = name;
+            cell2.innerHTML = email;
+            cell3.innerHTML = password;
+            cell4.innerHTML = dob;
+            cell5.innerHTML = terms ? 'Yes' : 'No';
+
+            // Clear the form
+            document.getElementById("registrationForm").reset();
+        }
+
+
+        function validateEmail(email) {
+            // Simple email validation
+            var emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return emailRegex.test(email);
+        }
+
+        function calculateAge(dob) {
+            // Calculate age based on the date of birth
+            var dobDate = new Date(dob);
+            var currentDate = new Date();
+            var age = currentDate.getFullYear() - dobDate.getFullYear();
+            var monthDiff = currentDate.getMonth() - dobDate.getMonth();
+
+            if (monthDiff < 0 || (monthDiff === 0 && currentDate.getDate() < dobDate.getDate())) {
+                age--;
+            }
+
+            return age;
+        }
+        function saveEntries() {
+            // Save entries to localStorage
+            var entries = getEntriesFromTable();
+            localStorage.setItem('userEntries', JSON.stringify(entries));
+        }
+        function loadEntries() {
+            // Load entries from localStorage and populate the table
+            var storedEntries = localStorage.getItem('userEntries');
+
+            if (storedEntries) {
+                var entries = JSON.parse(storedEntries);
+                populateTable(entries);
+            }
+        }
+        function getEntriesFromTable() {
+            // Extract entries from the table
+            var table = document.getElementById("userTable").getElementsByTagName('tbody')[0];
+            var entries = [];
+
+            for (var i = 0; i < table.rows.length; i++) {
+                var entry = {
+                    name: table.rows[i].cells[0].innerHTML,
+                    email: table.rows[i].cells[1].innerHTML,
+                    password: table.rows[i].cells[2].innerHTML,
+                    dob: table.rows[i].cells[3].innerHTML,
+                    terms: table.rows[i].cells[4].innerHTML === 'Yes' ? true : false
+                };
+                entries.push(entry);
+            }
+
+            return entries;
+        }
+
+        function populateTable(entries) {
+            // Populate the table with entries
+            var table = document.getElementById("userTable").getElementsByTagName('tbody')[0];
+            table.innerHTML = "";
+
+            for (var i = 0; i < entries.length; i++) {
+                var row = table.insertRow(0);
+                var cell1 = row.insertCell(0);
+                var cell2 = row.insertCell(1);
+                var cell3 = row.insertCell(2);
+                var cell4 = row.insertCell(3);
+                var cell5 = row.insertCell(4);
+
+                cell1.innerHTML = entries[i].name;
+                cell2.innerHTML = entries[i].email;
+                cell3.innerHTML = entries[i].password;
+                cell4.innerHTML = entries[i].dob;
+                cell5.innerHTML = entries[i].terms ? 'Yes' : 'No';
+            }
+        }
+    </script>
+
+</body>
+</html>
+        
+    
+    
